@@ -7,7 +7,7 @@ export default class Linestring {
 
 
   constructor(points?: Array<Point>) {
-    this.points = points ;
+    this.points = points? points: [] ;
   }
 
   getNumPoints(): number{
@@ -20,5 +20,9 @@ export default class Linestring {
 
   getType(): string{
     return "Linestring";
+  }
+
+  isEmpty(): boolean{
+    return this.points.length === 0;
   }
 }

@@ -5,7 +5,7 @@ export default class Point {
   private coordinate?: Coordinate;
 
   constructor(coordinate?: Coordinate) {
-    this.coordinate = coordinate ;
+    this.coordinate = coordinate? coordinate: [] ;
   }
 
   getCoordinate(): Coordinate {
@@ -21,7 +21,13 @@ export default class Point {
   }
 
   y(): number {
-    return this.coordinate ? this.coordinate[1] : Number.NaN ;
+    return this.coordinate ? this.coordinate[1] : Number.NaN  ;
   }
+
+  isEmpty(): boolean{
+    return (this.coordinate.length === 0);
+  }
+
+  
 
 }
