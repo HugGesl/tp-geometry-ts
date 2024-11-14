@@ -28,6 +28,14 @@ export default class Point {
     return (this.coordinate.length === 0);
   }
 
+  translate(dx:number, dy:number):void {
+    this.coordinate=[this.x()+dx, this.y()+dy];
+  }
+
+  clone():Point{
+    return new Point(this.coordinate);
+  }
+
   
 
 }

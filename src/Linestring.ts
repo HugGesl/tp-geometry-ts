@@ -25,4 +25,20 @@ export default class Linestring {
   isEmpty(): boolean{
     return this.points.length === 0;
   }
+
+  translate(dx:number, dy:number): void{
+    this.points.forEach(point => {
+        point.translate(dx, dy);
+        });
+  }
+
+  clone():Linestring{
+    const clonedPoints = [];
+    this.points.forEach((point)=> {
+      clonedPoints.push(point.clone());
+    });
+    return new Linestring(clonedPoints);
+  }
+
+
 }
