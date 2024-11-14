@@ -15,7 +15,7 @@ export default class Envelope {
     }
 
     getXmin(): number{
-        if(this.isEmpty){
+        if(this.isEmpty()){
             return undefined;
         }else{
             return this.bottomLeft[0];
@@ -24,7 +24,7 @@ export default class Envelope {
     }
 
     getYmin(): number{
-        if(this.isEmpty){
+        if(this.isEmpty()){
             return undefined;
         }else{
             return this.bottomLeft[1];
@@ -32,7 +32,7 @@ export default class Envelope {
     }
 
     getXmax(): number{
-        if(this.isEmpty){
+        if(this.isEmpty()){
             return undefined;
         }else{
             return this.topRight[0];
@@ -40,7 +40,7 @@ export default class Envelope {
     }
 
     getYmax(): number{
-        if(this.isEmpty){
+        if(this.isEmpty()){
             return undefined;
         }else{
             return this.topRight[1];

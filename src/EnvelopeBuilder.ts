@@ -7,19 +7,18 @@ export default class EnvelopeBuilder {
     private xMax?: number;
     private yMax?: number;
 
-    constructor() {
-      }
+    constructor() {}
 
     insert(coordinate:Coordinate){
-        this.xMin= Math.min(this.xMin? this.xMin: coordinate[0], coordinate[0]);
-        this.yMin= Math.min(this.yMin? this.yMin: coordinate[1], coordinate[1]);
-        this.xMax= Math.max(this.xMax? this.xMax: coordinate[0], coordinate[0]);
-        this.yMax= Math.max(this.yMax? this.yMax: coordinate[1], coordinate[1]);
-        console.log(this.xMin+','+this.yMin+','+this.xMax+','+this.yMax)
+        this.xMin = this.xMin === undefined ? coordinate[0] : Math.min(this.xMin, coordinate[0]);
+        this.yMin = this.yMin === undefined ? coordinate[1] : Math.min(this.yMin, coordinate[1]);
+        this.xMax = this.xMax === undefined ? coordinate[0] : Math.max(this.xMax, coordinate[0]);
+        this.yMax = this.yMax === undefined ? coordinate[1] : Math.max(this.yMax, coordinate[1]);
+
+        //console.log(this.xMin+','+this.yMin+','+this.xMax+','+this.yMax);
     }
 
     build():Envelope{
-
         return new Envelope([this.xMin,this.yMin], [this.xMax, this.yMax]);
     }
 
