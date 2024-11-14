@@ -4,6 +4,7 @@ import Point from "../src/Point";
 import Linestring from "../src/Linestring";
 import Envelope from "../src/Envelope";
 import EnvelopeBuilder from "../src/EnvelopeBuilder";
+import WktWriter from "../src/WktWriter";
 
 describe("test Point", () => {
     it("test default constructor", () => {
@@ -106,6 +107,25 @@ describe("test Linestring", () => {
         p.translate(1.0,1.0);
         expect(g.getPointN(0).getCoordinate()).to.deep.equal([3.0,4.0]);
     });
+    it("test getEnvelope avec coordonnées", () => {
+        const m = new Point([3.0,4.0]);
+        const n = new Point([5.0,8.0]);
+        const p = new Linestring([m,n]);
+        const result = p.getEnvelope();
+        expect(result.getXmin()).to.equal(3.0);
+        expect(result.getYmin()).to.equal(4.0);
+        expect(result.getXmax()).to.equal(5.0);
+        expect(result.getYmax()).to.equal(8.0);
+    });
+
+    it("test getEnvelope avec valeur par défaut", () => {
+        const p = new Linestring();
+        const result = p.getEnvelope();
+        expect(result.getXmin()).to.equal(undefined);
+        expect(result.getYmin()).to.equal(undefined);
+        expect(result.getXmax()).to.equal(undefined);
+        expect(result.getYmax()).to.equal(undefined);
+    });
 });
 describe("test Envelope", () => {
     it("test constructeur avec coordonnées définies", () => {
@@ -188,3 +208,23 @@ describe("test EnvelopeBuilder", () => {
 
 });
 
+describe("test WktWriter", () => {
+    it("test avec un point", () => {
+        const p = new Point([3.0,4.0]);
+        const writer = new WktWriter();
+
+        const wkt = writer.write(p);
+        console.log(wkt);
+
+    });
+    it("test avec une linestring", () => {
+        const m = new Point([3.0,4.0]);
+        const n = new Point([5.0,8.0]);
+        const p = new Linestring([m,n]);
+        const writer = new WktWriter();
+
+        const wkt = writer.write(p);
+        console.log(wkt);
+
+    });
+});
