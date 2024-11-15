@@ -1,8 +1,5 @@
-import Coordinate from "./Coordinate";
 import AbstractGeometry from "./AbstractGeometry";
 import Point from "./Point";
-import Envelope from "./Envelope";
-import EnvelopeBuilder from "./EnvelopeBuilder";
 import GeometryVisitor from "./GeometryVisitor";
 
 export default class Linestring extends AbstractGeometry{
@@ -44,13 +41,7 @@ export default class Linestring extends AbstractGeometry{
     return new Linestring(clonedPoints);
   }
 
-  getEnvelope():Envelope{
-    const EnvelopeBuilderLine = new EnvelopeBuilder();
-    this.points.forEach((point)=> {
-      EnvelopeBuilderLine.insert(point.getCoordinate());
-    });
-  return EnvelopeBuilderLine.build();
-  }
+
 
   accept(visitor: GeometryVisitor) {
     visitor.visitLinestring(this);

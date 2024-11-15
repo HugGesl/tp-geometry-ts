@@ -7,6 +7,7 @@ import EnvelopeBuilder from "../src/EnvelopeBuilder";
 import WktWriter from "../src/WktWriter";
 import LogGeometryVisitor from "../src/LogGeometryVisitor";
 import WktVisitor from "../src/WktVisitor";
+import GeometryWithCachedEnvelope from "../src/GeometryWithCachedEnvelope";
 
 describe("test Point", () => {
     it("test default constructor", () => {
@@ -262,6 +263,46 @@ describe("test WktVisitor", () => {
     it("test avec point", () => {
         const p = new Point([3.0,4.0]);
         const result = p.asText();
+        console.log(result);
         expect(result).to.equal("POINT(3 4)");
     });
 });
+
+describe("test getEnvelope", () => {
+    it("test avec point", () => {
+        const p = new Point([3.0,4.0]);
+        const result = p.getEnvelope();
+        expect(result.getXmin()).to.equal(3);
+        expect(result.getYmin()).to.equal(4);
+        expect(result.getXmax()).to.equal(3);
+        expect(result.getYmax()).to.equal(4);
+
+    });
+
+    it("test avec linestring", () => {
+        const m = new Point([3.0,4.0]);
+        const n = new Point([5.0,8.0]);
+        const p = new Linestring([m,n]);
+        const result = p.getEnvelope();
+        expect(result.getXmin()).to.equal(3);
+        expect(result.getYmin()).to.equal(4);
+        expect(result.getXmax()).to.equal(5);
+        expect(result.getYmax()).to.equal(8);
+
+    });
+});
+
+describe("test GeometryWithCachedEnvelope", () => {
+    it("test getEnvelope", () => {
+        let p = new Point([3.0,4.0]);
+        let g = new GeometryWithCachedEnvelope(p);
+        console.log(g);
+        const a = p.getEnvelope() ; // calcul et stockage dans cachedEnvelope
+        const b = g.getEnvelope() ; // renvoi de cachedEnvelope
+// a et b sont la même instance
+        console.log(a);
+        console.log(b);
+
+    });
+});
+
