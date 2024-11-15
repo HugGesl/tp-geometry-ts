@@ -6,6 +6,7 @@ import Envelope from "../src/Envelope";
 import EnvelopeBuilder from "../src/EnvelopeBuilder";
 import WktWriter from "../src/WktWriter";
 import LogGeometryVisitor from "../src/LogGeometryVisitor";
+import WktVisitor from "../src/WktVisitor";
 
 describe("test Point", () => {
     it("test default constructor", () => {
@@ -243,5 +244,24 @@ describe("test LogGeometry", () => {
         const n = new Point([5.0,8.0]);
         const geometry = new Linestring([m,n]);
         geometry.accept(visitor);
+    });
+});
+
+describe("test WktVisitor", () => {
+    it("test getResult", () => {
+        const visitor = new WktVisitor();
+        const geometry = new Point([3.0,4.0]);
+        geometry.accept(visitor);
+        // "POINT(3.0 4.0)"
+        const wkt = visitor.getResult();
+        console.log(wkt);
+    });
+});
+
+describe("test WktVisitor", () => {
+    it("test avec point", () => {
+        const p = new Point([3.0,4.0]);
+        const result = p.asText();
+        expect(result).to.equal("POINT(3 4)");
     });
 });
