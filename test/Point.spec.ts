@@ -5,6 +5,7 @@ import Linestring from "../src/Linestring";
 import Envelope from "../src/Envelope";
 import EnvelopeBuilder from "../src/EnvelopeBuilder";
 import WktWriter from "../src/WktWriter";
+import LogGeometryVisitor from "../src/LogGeometryVisitor";
 
 describe("test Point", () => {
     it("test default constructor", () => {
@@ -226,5 +227,21 @@ describe("test WktWriter", () => {
         const wkt = writer.write(p);
         console.log(wkt);
 
+    });
+});
+
+describe("test LogGeometry", () => {
+    it("test visitorPoint", () => {
+        const visitor = new LogGeometryVisitor();
+        const geometry = new Point([3.0,4.0]);
+        geometry.accept(visitor);
+    });
+
+    it("test visitorLinestring", () => {
+        const visitor = new LogGeometryVisitor();
+        const m = new Point([3.0,4.0]);
+        const n = new Point([5.0,8.0]);
+        const geometry = new Linestring([m,n]);
+        geometry.accept(visitor);
     });
 });
