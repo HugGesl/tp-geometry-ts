@@ -5,7 +5,7 @@ export default class GeometryWithCachedEnvelope implements Geometry{
     private original?: Geometry;
     private  cache?: Envelope;
 
-    constructor(original?: Geometry) {
+    constructor(original: Geometry) {
         this.original = original;
     }
     asText(): string {
