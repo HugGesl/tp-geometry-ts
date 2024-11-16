@@ -8,6 +8,7 @@ import WktWriter from "../src/WktWriter";
 import LogGeometryVisitor from "../src/LogGeometryVisitor";
 import WktVisitor from "../src/WktVisitor";
 import GeometryWithCachedEnvelope from "../src/GeometryWithCachedEnvelope";
+import GeometryCollection from "../src/GeometryCollection";
 
 describe("test Point", () => {
     it("test default constructor", () => {
@@ -299,10 +300,77 @@ describe("test GeometryWithCachedEnvelope", () => {
         console.log(g);
         const a = p.getEnvelope() ; // calcul et stockage dans cachedEnvelope
         const b = g.getEnvelope() ; // renvoi de cachedEnvelope
-// a et b sont la même instance
         console.log(a);
         console.log(b);
 
     });
 });
 
+describe('test GeometryCollection', () => {
+
+    it('should initialize with an empty collection if no geometries are passed', () => {
+        const emptyCollection = new GeometryCollection();
+        expect(emptyCollection.getNumGeometries()).to.equal(0);
+    });
+
+    it('should initialize with the correct number of geometries', () => {
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1,p2]);
+        const geometryCollection = new GeometryCollection([p1, p2, linestring]);
+        expect(geometryCollection.getNumGeometries()).to.equal(3);
+    });
+
+    it('should return the correct geometry when getGeometryN is called', () => {
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1,p2]);
+        const geometryCollection = new GeometryCollection([p1, p2, linestring]);
+        expect(geometryCollection.getGeometryN(0)).to.equal(p1);
+        expect(geometryCollection.getGeometryN(1)).to.equal(p2);
+        expect(geometryCollection.getGeometryN(2)).to.equal(linestring);
+    });
+
+    it('should clone the geometry collection', () => {
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1,p2]);
+        const geometryCollection = new GeometryCollection([p1, p2, linestring]);
+        const clonedCollection = geometryCollection.clone();
+        expect(clonedCollection).to.not.equal(geometryCollection);
+        expect(clonedCollection.getNumGeometries()).to.equal(geometryCollection.getNumGeometries());
+    });
+
+    it('should return the correct type', () => {
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1,p2]);
+        const geometryCollection = new GeometryCollection([p1, p2, linestring]);
+        expect(geometryCollection.getType()).to.equal('GeometryCollection');
+    });
+
+    it('should return true for isEmpty if collection is empty', () => {
+        const emptyCollection = new GeometryCollection();
+        expect(emptyCollection.isEmpty()).to.be.true;
+    });
+
+    it('should return false for isEmpty if collection is not empty', () => {
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1,p2]);
+        const geometryCollection = new GeometryCollection([p1, p2, linestring]);
+        expect(geometryCollection.isEmpty()).to.be.false;
+    });
+
+    it('should translate all geometries by dx, dy', () => {
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1.clone(),p2.clone()]);
+        const geometryCollection = new GeometryCollection([p1, p2, linestring]);
+        geometryCollection.translate(1, 1);
+        expect(p1.getCoordinate()).to.deep.equal([4,5]);
+        expect(p2.getCoordinate()).to.deep.equal([6,9]);
+        expect(linestring.getPointN(0).getCoordinate()).to.deep.equal([4,5]);
+        expect(linestring.getPointN(1).getCoordinate()).to.deep.equal([6,9]);
+    });
+});

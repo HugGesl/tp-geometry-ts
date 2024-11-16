@@ -3,6 +3,7 @@ import Envelope from "./Envelope";
 import GeometryVisitor from "./GeometryVisitor";
 import Linestring from "./Linestring";
 import Point from "./Point";
+import GeometryCollection from "./GeometryCollection";
 
 export default class EnvelopeBuilder implements GeometryVisitor{
     private xMin?: number;
@@ -17,8 +18,6 @@ export default class EnvelopeBuilder implements GeometryVisitor{
         this.yMin = this.yMin === undefined ? coordinate[1] : Math.min(this.yMin, coordinate[1]);
         this.xMax = this.xMax === undefined ? coordinate[0] : Math.max(this.xMax, coordinate[0]);
         this.yMax = this.yMax === undefined ? coordinate[1] : Math.max(this.yMax, coordinate[1]);
-
-        //console.log(this.xMin+','+this.yMin+','+this.xMax+','+this.yMax);
     }
 
     build():Envelope{
@@ -37,5 +36,10 @@ export default class EnvelopeBuilder implements GeometryVisitor{
         this.insert(point.getCoordinate());
     }
 
+    visitGeometryCollection(geometryCollection: GeometryCollection): void {
+        for (let i = 0; i < geometryCollection.getNumGeometries(); i++) {
+            geometryCollection.getGeometryN(i).accept(this);
 
+        }
+    }
 }

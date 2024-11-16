@@ -1,6 +1,7 @@
 import GeometryVisitor from "./GeometryVisitor";
 import Linestring from "./Linestring";
 import Point from "./Point";
+import GeometryCollection from "./GeometryCollection";
 
 export default class WktVisitor implements GeometryVisitor{
     private buffer?: string;
@@ -13,17 +14,36 @@ export default class WktVisitor implements GeometryVisitor{
         return this.buffer;
     }
     visitLinestring(linestring: Linestring): void {
-        let listCoord = [];
-        for (let i=0; i<linestring.getNumPoints(); i++){
-            listCoord.push(linestring.getPointN(i).x());
-            listCoord.push(linestring.getPointN(i).y());
+        if (linestring.isEmpty()){
+            this.buffer = "LINESTRING IS EMPTY";
         }
-        this.buffer = linestring.getType().toUpperCase()+'('+listCoord.join(" ")+')';
-
+        else {
+            let listCoord = [];
+            for (let i = 0; i < linestring.getNumPoints(); i++) {
+                listCoord.push(linestring.getPointN(i).x());
+                listCoord.push(linestring.getPointN(i).y());
+            }
+            this.buffer = linestring.getType().toUpperCase() + '(' + listCoord.join(" ") + ')';
+        }
     }
-
     visitPoint(point: Point): void {
-        this.buffer = point.getType().toUpperCase()+'('+point.getCoordinate().join(" ")+')';
+        if (point.isEmpty()) {
+            this.buffer = "POINT IS EMPTY";
+        } else {
+            this.buffer = point.getType().toUpperCase() + '(' + point.getCoordinate().join(" ") + ')';
+        }
     }
 
+    visitGeometryCollection(geometryCollection: GeometryCollection) {
+        if (geometryCollection.isEmpty()) {
+            this.buffer = "GEOMETRYCOLLECTION EMPTY";
+        } else {
+            let listCoordGeometry = [];
+            for (let i = 0; i < geometryCollection.getNumGeometries(); i++) {
+                geometryCollection.getGeometryN(i).accept(this);
+                listCoordGeometry.push(this.buffer);
+            }
+            this.buffer = geometryCollection.getType().toUpperCase() + '(' + listCoordGeometry.join(" ") + ')';
+        }
+    }
 }

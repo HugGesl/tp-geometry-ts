@@ -1,5 +1,5 @@
-import Geometry from "./Geometry";
 import AbstractGeometry from "./AbstractGeometry";
+import Geometry from "./Geometry";
 import GeometryVisitor from "./GeometryVisitor";
 
 
@@ -11,7 +11,7 @@ export default class GeometryCollection extends AbstractGeometry{
         this.geometries = geometries? geometries: [];
     }
     getNumGeometries(): number {
-        return this.geometries.length;
+        return this.geometries? this.geometries.length: 0;
     }
 
     getGeometryN(n: number): Geometry {
@@ -19,25 +19,30 @@ export default class GeometryCollection extends AbstractGeometry{
     }
 
     accept(visitor: GeometryVisitor): void {
-        this.geometries.forEach(geometry=>{
-            //
-        });
+        visitor.visitGeometryCollection(this);
     }
 
-    clone(): Geometry {
-        return undefined;
+    clone(): GeometryCollection {
+        const clonedGeometries = [];
+        this.geometries.forEach((geometry)=> {
+            clonedGeometries.push(geometry.clone());
+        });
+        return new GeometryCollection(clonedGeometries);
     }
 
     getType(): string {
-        return
+        return "GeometryCollection";
 
     }
 
     isEmpty(): boolean {
-      return
+      return this.geometries.length === 0;
     }
 
     translate(dx: number, dy: number): void {
+        this.geometries.forEach(geometry => {
+            geometry.translate(dx, dy);
+        });
     }
 
 

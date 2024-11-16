@@ -1,6 +1,6 @@
+import type Geometry from "./Geometry";
 import GeometryVisitor from "./GeometryVisitor";
 import WktVisitor from "./WktVisitor";
-import Geometry from "./Geometry";
 import Envelope from "./Envelope";
 import EnvelopeBuilder from "./EnvelopeBuilder";
 

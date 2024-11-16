@@ -12,7 +12,7 @@ export default class Linestring extends AbstractGeometry{
   }
 
   getNumPoints(): number{
-    return this.points? this.points.length : Number.NaN;
+    return this.points? this.points.length : 0;
   }
 
   getPointN(n: number): Point{

@@ -1,5 +1,6 @@
 import Geometry from "./Geometry";
 import Envelope from "./Envelope";
+import GeometryVisitor from "./GeometryVisitor";
 
 export default class GeometryWithCachedEnvelope implements Geometry{
     private original?: Geometry;
@@ -36,6 +37,10 @@ export default class GeometryWithCachedEnvelope implements Geometry{
         this.cache == undefined;
         this.original.translate(dx, dy);
 
+    }
+
+    accept(visitor: GeometryVisitor): void {
+        this.original.accept(visitor);
     }
 
 }
