@@ -9,6 +9,8 @@ import LogGeometryVisitor from "../src/LogGeometryVisitor";
 import WktVisitor from "../src/WktVisitor";
 import GeometryWithCachedEnvelope from "../src/GeometryWithCachedEnvelope";
 import GeometryCollection from "../src/GeometryCollection";
+import GeometryVisitor from "../src/GeometryVisitor";
+import Geometry from "../src/Geometry";
 
 describe("test Point", () => {
     it("test default constructor", () => {
@@ -216,9 +218,7 @@ describe("test WktWriter", () => {
     it("test avec un point", () => {
         const p = new Point([3.0,4.0]);
         const writer = new WktWriter();
-
         const wkt = writer.write(p);
-        console.log(wkt);
 
     });
     it("test avec une linestring", () => {
@@ -226,9 +226,7 @@ describe("test WktWriter", () => {
         const n = new Point([5.0,8.0]);
         const p = new Linestring([m,n]);
         const writer = new WktWriter();
-
         const wkt = writer.write(p);
-        console.log(wkt);
 
     });
 });
@@ -249,71 +247,101 @@ describe("test LogGeometry", () => {
     });
 });
 
+
+
 describe("test WktVisitor", () => {
     it("test getResult", () => {
         const visitor = new WktVisitor();
         const geometry = new Point([3.0,4.0]);
         geometry.accept(visitor);
-        // "POINT(3.0 4.0)"
-        const wkt = visitor.getResult();
-        console.log(wkt);
+        const wktVisitor = visitor.getResult();
+        expect(wktVisitor).to.equal("POINT(3 4)");
+    });
+
+    it('test visitLinestring with empty linestring', () => {
+        const wktVisitor = new WktVisitor();
+        const emptyLinestring = new Linestring();
+
+        wktVisitor.visitLinestring(emptyLinestring);
+        expect(wktVisitor.getResult()).to.equal('LINESTRING IS EMPTY');
+    });
+
+    it('test visitLinestring with non-empty linestring', () => {
+        const wktVisitor = new WktVisitor();
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1,p2]);
+
+        wktVisitor.visitLinestring(linestring);
+        expect(wktVisitor.getResult()).to.equal('LINESTRING(3 4 5 8)');
+    });
+
+    it('test visitGeometryCollection with empty collection', () => {
+        const wktVisitor = new WktVisitor();
+        const emptyCollection = new GeometryCollection();
+        emptyCollection.isEmpty = () => true;
+
+        wktVisitor.visitGeometryCollection(emptyCollection);
+        expect(wktVisitor.getResult()).to.equal('GEOMETRYCOLLECTION EMPTY');
+    });
+
+    it('test visitGeometryCollection with non-empty collection', () => {
+        const wktVisitor = new WktVisitor();
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1,p2]);
+        const geometryCollection = new GeometryCollection([p1, p2, linestring]);
+        wktVisitor.visitGeometryCollection(geometryCollection);
+        expect(wktVisitor.getResult()).to.equal('GEOMETRYCOLLECTION(POINT(3 4) POINT(5 8) LINESTRING(3 4 5 8))');
     });
 });
 
-describe("test WktVisitor", () => {
-    it("test avec point", () => {
-        const p = new Point([3.0,4.0]);
-        const result = p.asText();
-        console.log(result);
-        expect(result).to.equal("POINT(3 4)");
+describe('GeometryWithCachedEnvelope', () => {
+    it('test asText', () => {
+        const p1 = new Point([3.0,4.0]);
+        const geometryWithCache = new GeometryWithCachedEnvelope(p1);
+        expect(geometryWithCache.asText()).to.equal('POINT(3 4)');
+    });
+
+    it('test getEnvelope', () => {
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1,p2]);
+        const geometryWithCache = new GeometryWithCachedEnvelope(linestring);
+        const envelope = geometryWithCache.getEnvelope();
+        expect(envelope).to.deep.equal(new Envelope([3, 4],[5,8]));
+    });
+
+    it('test getType', () => {
+        const p1 = new Point([3.0,4.0]);
+        const geometryWithCache = new GeometryWithCachedEnvelope(p1);
+        expect(geometryWithCache.getType()).to.equal('Point');
+    });
+
+    it('test isEmpty', () => {
+        const p1 = new Point([3.0,4.0]);
+        const geometryWithCache = new GeometryWithCachedEnvelope(p1);
+        expect(geometryWithCache.isEmpty()).to.be.false;
+    });
+
+    it('test translate', () => {
+        const p1 = new Point([3.0,4.0]);
+        const p2 = new Point([5.0,8.0]);
+        const linestring = new Linestring([p1,p2]);
+        const geometryWithCache = new GeometryWithCachedEnvelope(linestring);
+        geometryWithCache.translate(1, 1);
+        expect(p2.getCoordinate()).to.deep.equal([6, 9]);
+        expect(geometryWithCache['cache']).to.be.undefined;
     });
 });
-
-describe("test getEnvelope", () => {
-    it("test avec point", () => {
-        const p = new Point([3.0,4.0]);
-        const result = p.getEnvelope();
-        expect(result.getXmin()).to.equal(3);
-        expect(result.getYmin()).to.equal(4);
-        expect(result.getXmax()).to.equal(3);
-        expect(result.getYmax()).to.equal(4);
-
-    });
-
-    it("test avec linestring", () => {
-        const m = new Point([3.0,4.0]);
-        const n = new Point([5.0,8.0]);
-        const p = new Linestring([m,n]);
-        const result = p.getEnvelope();
-        expect(result.getXmin()).to.equal(3);
-        expect(result.getYmin()).to.equal(4);
-        expect(result.getXmax()).to.equal(5);
-        expect(result.getYmax()).to.equal(8);
-
-    });
-});
-
-describe("test GeometryWithCachedEnvelope", () => {
-    it("test getEnvelope", () => {
-        let p = new Point([3.0,4.0]);
-        let g = new GeometryWithCachedEnvelope(p);
-        console.log(g);
-        const a = p.getEnvelope() ; // calcul et stockage dans cachedEnvelope
-        const b = g.getEnvelope() ; // renvoi de cachedEnvelope
-        console.log(a);
-        console.log(b);
-
-    });
-});
-
 describe('test GeometryCollection', () => {
 
-    it('should initialize with an empty collection if no geometries are passed', () => {
+    it('test default constructor', () => {
         const emptyCollection = new GeometryCollection();
         expect(emptyCollection.getNumGeometries()).to.equal(0);
     });
 
-    it('should initialize with the correct number of geometries', () => {
+    it('test constructor with geometries', () => {
         const p1 = new Point([3.0,4.0]);
         const p2 = new Point([5.0,8.0]);
         const linestring = new Linestring([p1,p2]);
@@ -321,7 +349,7 @@ describe('test GeometryCollection', () => {
         expect(geometryCollection.getNumGeometries()).to.equal(3);
     });
 
-    it('should return the correct geometry when getGeometryN is called', () => {
+    it('test getGeometryN', () => {
         const p1 = new Point([3.0,4.0]);
         const p2 = new Point([5.0,8.0]);
         const linestring = new Linestring([p1,p2]);
@@ -331,7 +359,7 @@ describe('test GeometryCollection', () => {
         expect(geometryCollection.getGeometryN(2)).to.equal(linestring);
     });
 
-    it('should clone the geometry collection', () => {
+    it('test clone', () => {
         const p1 = new Point([3.0,4.0]);
         const p2 = new Point([5.0,8.0]);
         const linestring = new Linestring([p1,p2]);
@@ -341,7 +369,7 @@ describe('test GeometryCollection', () => {
         expect(clonedCollection.getNumGeometries()).to.equal(geometryCollection.getNumGeometries());
     });
 
-    it('should return the correct type', () => {
+    it('test getType', () => {
         const p1 = new Point([3.0,4.0]);
         const p2 = new Point([5.0,8.0]);
         const linestring = new Linestring([p1,p2]);
@@ -349,12 +377,12 @@ describe('test GeometryCollection', () => {
         expect(geometryCollection.getType()).to.equal('GeometryCollection');
     });
 
-    it('should return true for isEmpty if collection is empty', () => {
+    it('test isEmpty empty', () => {
         const emptyCollection = new GeometryCollection();
         expect(emptyCollection.isEmpty()).to.be.true;
     });
 
-    it('should return false for isEmpty if collection is not empty', () => {
+    it('test isEmpty non empty', () => {
         const p1 = new Point([3.0,4.0]);
         const p2 = new Point([5.0,8.0]);
         const linestring = new Linestring([p1,p2]);
@@ -362,15 +390,16 @@ describe('test GeometryCollection', () => {
         expect(geometryCollection.isEmpty()).to.be.false;
     });
 
-    it('should translate all geometries by dx, dy', () => {
+    it('test translate', () => {
         const p1 = new Point([3.0,4.0]);
         const p2 = new Point([5.0,8.0]);
-        const linestring = new Linestring([p1.clone(),p2.clone()]);
+        const p3 = new  Point([10, 7]);
+        const linestring = new Linestring([p1.clone(),p2.clone(), p3]);
         const geometryCollection = new GeometryCollection([p1, p2, linestring]);
         geometryCollection.translate(1, 1);
         expect(p1.getCoordinate()).to.deep.equal([4,5]);
         expect(p2.getCoordinate()).to.deep.equal([6,9]);
         expect(linestring.getPointN(0).getCoordinate()).to.deep.equal([4,5]);
-        expect(linestring.getPointN(1).getCoordinate()).to.deep.equal([6,9]);
+        expect(linestring.getPointN(2).getCoordinate()).to.deep.equal([11, 8]);
     });
 });
